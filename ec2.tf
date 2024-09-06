@@ -146,6 +146,17 @@ EOF
 systemctl enable nginx
 systemctl restart nginx
 
+# install github
+(type -p wget >/dev/null || ( apt update &&  apt-get install wget -y)) \
+	&&  mkdir -p -m 755 /etc/apt/keyrings \
+	&& wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg |  tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+	&&  chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+	&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" |  tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+	&&  apt update \
+	&&  apt install gh -y
+git config --global core.editor "vim"
+
+
 EOT
 
   tags = { Name = "${local.name}-public-ec2" }
