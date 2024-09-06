@@ -95,23 +95,56 @@ resource "aws_instance" "public" {
   user_data = <<EOT
 #!/bin/bash
 apt update
-apt -qqy install nginx apache2-utils google-perftool --no-install-recommends
+apt -qqy install nginx apache2-utils --no-install-recommends
+apt -qqy install google-perftools libgoogle-perftools-dev --no-install-recommends
+add-apt-repository ppa:deadsnakes/ppa
+apt update
+apt install python3.11 python3.11-venv
+
+
+mkdir /cert
+pushd /cert
+openssl req -x509 -newkey rsa:4096 \
+  -keyout key.pem \
+  -out cert.pem \
+  -sha256 -days 3650 \
+  -nodes -subj "/C=US/ST=NY/L=Rochester/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
+popd
 
 cat << EOF > /etc/nginx/sites-enabled/default
 server {
-        listen       80;
-        server_name  127.0.0.1;
-        location / {
-            proxy_pass         http://127.0.0.1:7860/;
-            proxy_redirect     off;
-
-        }
+  listen       80;
+  server_name  127.0.0.1;
+  location / {
+    proxy_pass         http://127.0.0.1:7860/;
+    #proxy_redirect     off;
+    proxy_buffering off;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
+  }
 }
 
+server {
+  listen              443 ssl;
+  server_name         www.example.com;
+  ssl_certificate     /cert/cert.pem;
+  ssl_certificate_key /cert/key.pem;
+  ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+  ssl_ciphers         HIGH:!aNULL:!MD5;
+  location / {
+    proxy_pass         http://127.0.0.1:7860/;
+    #proxy_redirect     off;
+    proxy_buffering off;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
+  }
+}
 EOF
 
 systemctl enable nginx
-systemctl start nginx
+systemctl restart nginx
 
 EOT
 
