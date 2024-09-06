@@ -1,6 +1,6 @@
 locals {
   instance_type = "g4dn.xlarge"
-  ami           = "amazon/Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.3.0 (Ubuntu 20.04) 20240825"
+  ami           = "Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.3.0 (Ubuntu 20.04) 20240825"
   ami_type      = "hvm"
   ami_owner     = "898082745236"
   volume_type   = "gp3"
@@ -35,8 +35,8 @@ resource "aws_security_group" "public" {
     from_port        = 80
     to_port          = 80
     protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+    cidr_blocks      = ["${chomp(data.http.myip.response_body)}/32"]
+    # cidr_blocks      = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -44,9 +44,9 @@ resource "aws_security_group" "public" {
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+    cidr_blocks      = ["${chomp(data.http.myip.response_body)}/32"]
   }
+
 
   egress {
     from_port        = 0
@@ -77,7 +77,21 @@ resource "aws_instance" "public" {
   user_data = <<EOT
 #!/bin/bash
 apt update
-apt -qqy install  nginx apache2-utils --no-install-recommends
+apt -qqy install nginx apache2-utils google-perftool --no-install-recommends
+
+cat << EOF > /etc/nginx/sites-enabled/default
+server {
+        listen       80;
+        server_name  127.0.0.1;
+        location / {
+            proxy_pass         http://127.0.0.1:7860/;
+            proxy_redirect     off;
+
+        }
+}
+
+EOF
+
 systemctl enable nginx
 systemctl start nginx
 
