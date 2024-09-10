@@ -7,6 +7,10 @@ locals {
   volume_size   = 300
 }
 
+locals {
+  dollar = "$"
+}
+
 resource "aws_key_pair" "this" {
   key_name   = "${local.name}-keypair"
   public_key = file(pathexpand("~/.ssh/id_rsa.pub"))
@@ -119,9 +123,9 @@ server {
     proxy_pass         http://127.0.0.1:7860/;
     #proxy_redirect     off;
     proxy_buffering off;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-Host $host;
-    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Real-IP ${local.dollar}remote_addr;
+    proxy_set_header X-Forwarded-Host ${local.dollar}host;
+    proxy_set_header X-Forwarded-Port ${local.dollar}server_port;
   }
 }
 
@@ -136,9 +140,9 @@ server {
     proxy_pass         http://127.0.0.1:7860/;
     #proxy_redirect     off;
     proxy_buffering off;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-Host $host;
-    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Real-IP ${local.dollar}remote_addr;
+    proxy_set_header X-Forwarded-Host ${local.dollar}host;
+    proxy_set_header X-Forwarded-Port ${local.dollar}server_port;
   }
 }
 EOF
