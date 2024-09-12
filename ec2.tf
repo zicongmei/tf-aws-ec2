@@ -1,5 +1,6 @@
 locals {
   instance_type = "g4dn.xlarge"
+  #instance_type =  "g5.xlarge"
   ami           = "Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.3.0 (Ubuntu 20.04) 20240825"
   ami_type      = "hvm"
   ami_owner     = "898082745236"
