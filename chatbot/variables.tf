@@ -4,11 +4,11 @@ variable "name" {
   type        = string
 }
 
-data "http" "myip" {
-  url = "https://ipv4.icanhazip.com"
+variable "hg_token" {
+  type = string
 }
 
-variable "hg_token" {
+variable "sshkey" {
   type = string
 }
 
@@ -18,7 +18,3 @@ variable "ipv4block" {
 variable "ipv6block" {
   type = string
 }
-variable "sshkey" {
-  type = string
-}
-
