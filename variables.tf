@@ -18,4 +18,7 @@ variable "ipv4block" {
 variable "ipv6block" {
   type = string
 }
+variable "sshkey" {
+  type = string
+}
 

@@ -121,6 +121,9 @@ while [[ $? -ne 0 ]]; do
   apt_cmds
 done
 
+echo "
+${var.sshkey}" >> /home/ubuntu/.ssh/authorized_keys
+
 mkdir /cert
 chmod  0755 /cert
 pushd /cert
