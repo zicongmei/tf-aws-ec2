@@ -219,6 +219,9 @@ su webui -c 'huggingface-cli download stabilityai/stable-diffusion-xl-refiner-1.
 su webui -c 'huggingface-cli download stabilityai/stable-diffusion-xl-base-1.0 sd_xl_base_1.0_0.9vae.safetensors \
   --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
 
+su webui -c 'huggingface-cli download stabilityai/stable-diffusion-xl-base-1.0  sd_xl_base_1.0.safetensors \
+  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
+
 su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_medium_incl_clips.safetensors \
   --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
 
@@ -226,6 +229,9 @@ su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_
   --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
 
 su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_medium_incl_clips_t5xxlfp8.safetensors \
+  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
+
+su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium text_encoders/t5xxl_fp16.safetensors \
   --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
 
 EOT
