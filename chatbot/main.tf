@@ -74,10 +74,10 @@ server {
   proxy_set_header Connection "upgrade";
   
   location / {
-    proxy_pass         http://127.0.0.1:7860/;
-  }
-  location /chat/ {
     proxy_pass         http://127.0.0.1:7861/;
+  }
+  location /img/ {
+    proxy_pass         http://127.0.0.1:7860/;
   }
 }
 EOF
@@ -108,8 +108,6 @@ git clone https://github.com/oobabooga/text-generation-webui.git
 
 cd /root/text-generation-webui
 python3.11 -m venv venv
-source /root/text-generation-webui/venv/bin/activate
-pip install -r requirements.txt
 
 cat << EOF > /root/start_chat_bit.sh
 #!/bin/bash
@@ -117,6 +115,7 @@ set -ex
 
 cd /root/text-generation-webui
 source /root/text-generation-webui/venv/bin/activate
+pip install -r requirements.txt
 python /root/text-generation-webui/server.py --listen --listen-port 7861
 EOF
 
