@@ -74,9 +74,6 @@ server {
   proxy_set_header Connection "upgrade";
   
   location / {
-    proxy_pass         http://127.0.0.1:7861/;
-  }
-  location /img/ {
     proxy_pass         http://127.0.0.1:7860/;
   }
 }
@@ -108,6 +105,8 @@ git clone https://github.com/oobabooga/text-generation-webui.git
 
 cd /root/text-generation-webui
 python3.11 -m venv venv
+source /root/text-generation-webui/venv/bin/activate
+pip install -r requirements.txt
 
 cat << EOF > /root/start_chat_bit.sh
 #!/bin/bash
@@ -115,8 +114,7 @@ set -ex
 
 cd /root/text-generation-webui
 source /root/text-generation-webui/venv/bin/activate
-pip install -r requirements.txt
-python /root/text-generation-webui/server.py --listen --listen-port 7861
+python /root/text-generation-webui/server.py --listen --listen-port 7860
 EOF
 
 
@@ -137,54 +135,6 @@ WantedBy=multi-user.target
 EOF
 systemctl enable chatbot
 systemctl start chatbot 
-
-# sd webUI
-useradd -m webui
-cd /home/webui
-cd /home/webui
-su webui -c 'git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git'
-cd stable-diffusion-webui
-su webui -c 'python3.11 -m venv venv'
-
-cat << EOF > /lib/systemd/system/webui.service
-[Unit]
-Description=web ui
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/home/webui/stable-diffusion-webui/webui.sh --listen
-TimeoutStopSec=5
-KillMode=mixed
-User=webui
-Group=webui
-TimeoutSec=60
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl enable webui
-systemctl start webui 
-
-su webui -c 'huggingface-cli login --token ${var.hg_token}'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-xl-base-1.0 sd_xl_base_1.0_0.9vae.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-xl-base-1.0  sd_xl_base_1.0.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_medium_incl_clips.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_medium_incl_clips_t5xxlfp16.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_medium_incl_clips_t5xxlfp8.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium text_encoders/t5xxl_fp16.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
 
 EOT
 
