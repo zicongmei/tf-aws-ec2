@@ -6,6 +6,7 @@ module "ec2_module" {
   name      = var.name
   ipv4block = var.ipv4block
   ipv6block = var.ipv6block
+  instance_type = "g4dn.xlarge"
 }
 
 
@@ -62,18 +63,19 @@ server {
   ssl_certificate_key /cert/key.pem;
   ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
   ssl_ciphers         HIGH:!aNULL:!MD5;
+   
+  proxy_buffering off;
+  proxy_set_header X-Real-IP \${local.dollar}remote_addr;
+  proxy_set_header X-Forwarded-Host \${local.dollar}host;
+  proxy_set_header X-Forwarded-Port \${local.dollar}server_port;
+
+  # WebSocket support
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade \${local.dollar}http_upgrade;
+  proxy_set_header Connection "upgrade";
+  
   location / {
     proxy_pass         http://127.0.0.1:7860/;
-    #proxy_redirect     off;
-    proxy_buffering off;
-    proxy_set_header X-Real-IP \${local.dollar}remote_addr;
-    proxy_set_header X-Forwarded-Host \${local.dollar}host;
-    proxy_set_header X-Forwarded-Port \${local.dollar}server_port;
-
-    # WebSocket support
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade \${local.dollar}http_upgrade;
-    proxy_set_header Connection "upgrade";
   }
 }
 EOF
@@ -96,53 +98,6 @@ git config --global core.editor "vim"
 pip install -U "huggingface_hub[cli]"
 echo ${var.hg_token} > /cert/hg_token
 huggingface-cli login --token ${var.hg_token} 
-
-# webui
-useradd -m webui
-cd /home/webui
-su webui -c 'git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git'
-cd stable-diffusion-webui
-su webui -c 'python3.11 -m venv venv'
-
-cat << EOF > /lib/systemd/system/webui.service
-[Unit]
-Description=web ui
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/home/webui/stable-diffusion-webui/webui.sh --listen
-TimeoutStopSec=5
-KillMode=mixed
-User=webui
-Group=webui
-TimeoutSec=60
-
-[Install]
-WantedBy=multi-user.target
-EOF
-systemctl enable webui
-systemctl start webui 
-
-su webui -c 'huggingface-cli login --token ${var.hg_token}'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-xl-base-1.0 sd_xl_base_1.0_0.9vae.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-xl-base-1.0  sd_xl_base_1.0.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_medium_incl_clips.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_medium_incl_clips_t5xxlfp16.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium sd3_medium_incl_clips_t5xxlfp8.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
-
-su webui -c 'huggingface-cli download stabilityai/stable-diffusion-3-medium text_encoders/t5xxl_fp16.safetensors \
-  --local-dir /home/webui/stable-diffusion-webui/models/Stable-diffusion'
 
 EOT
 

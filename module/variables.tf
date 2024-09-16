@@ -19,3 +19,8 @@ variable "ipv6block" {
 variable "user_data" {
   type = string
 }
+
+variable "instance_type" {
+  type = string
+  default = "g6.xlarge"
+}

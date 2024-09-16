@@ -1,6 +1,6 @@
 
 
-module "sdui" {
+module "ec2_module" {
   source    = "../module"
   user_data = local.user_data
   name      = var.name
