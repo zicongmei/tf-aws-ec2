@@ -77,6 +77,10 @@ server {
   location / {
     proxy_pass         http://127.0.0.1:7860/;
   }
+  location /html/ {
+    root   /home/ubuntu/;
+  }
+
 }
 EOF
 
