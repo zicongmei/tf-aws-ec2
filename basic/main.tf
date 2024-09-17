@@ -74,11 +74,12 @@ server {
   proxy_set_header Upgrade \${local.dollar}http_upgrade;
   proxy_set_header Connection "upgrade";
   
-  location / {
+  location /ui/ {
     proxy_pass         http://127.0.0.1:7860/;
   }
-  location /html/ {
+  location / {
     root   /home/ubuntu/;
+    autoindex on;
   }
 
 }
