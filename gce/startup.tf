@@ -1,18 +1,6 @@
-
-
-module "ec2_module" {
-  source    = "../module"
-  user_data = local.user_data
-  name      = var.name
-  ipv4block = var.ipv4block
-  ipv6block = var.ipv6block
-  # instance_type = "g4dn.xlarge"
-}
-
-
 locals {
   dollar    = "$"
-  user_data = <<EOT
+  startup = <<EOT
 #!/bin/bash
 set -x
 
@@ -105,5 +93,4 @@ echo ${var.hg_token} > /cert/hg_token
 huggingface-cli login --token ${var.hg_token} 
 
 EOT
-
 }
